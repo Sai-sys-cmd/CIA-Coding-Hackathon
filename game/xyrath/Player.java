@@ -1,5 +1,5 @@
-//PLAYER.JAVA FILE
-//imports
+// imports
+import java.awt.Rectangle;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -10,63 +10,57 @@ public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
     int spriteCounter = 0;
-    int spriteNum = 1; //tracks which sprite to display for animation
-  
-//constructor to initialize with references to GamePanel and KeyHandler
+    int spriteNum = 1; // Tracks which sprite to display for animation
+    BufferedImage sub1, sub2; // Define sprite images
+
+    // Constructor to initialize with references to GamePanel and KeyHandler
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
-        setDefaultValues(); //set initial position and speed
-        getPlayerImage(); //load player sprites
+        setDefaultValues(); // Set initial position and speed
+        getPlayerImage(); // Load player sprites
     }
 
-  //set the default position, speed, and direction of the player
+    // Set the default position, speed, and direction of the player
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
-        speed = 2;
-        direction = "down";
+        x = 100; // Initial x-position
+        y = 100; // Initial y-position
+        speed = 2; // Player movement speed
+        direction = "down"; // Initial movement direction
     }
 
-  //load the sprite images based on controls
+    // Load the sprite images
     public void getPlayerImage() {
         try {
-            up1 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/up1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/up2.png"));
-
-            down1 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/down1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/down2.png"));
-
-            right1 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/right1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/right2.png"));
-
-            left1 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/left1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/left2.png"));
+            sub1 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/sub1.png"));
+            sub2 = ImageIO.read(getClass().getResourceAsStream("/xyrath/Player_Sprites/sub2.png"));
         } catch (IOException e) {
-            e.printStackTrace(); // print error ifg fail to load
+            e.printStackTrace(); // Print error if loading fails
+        } catch (NullPointerException e) {
+            System.out.println("Error: Image not found");
         }
     }
 
-  //update player position based on key points
+    // Update player position based on key inputs
     public void update() {
-      //play the animation only if the key is pressed
+        // Play the animation only if a key is pressed
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
-          //play the animation depending on the direction
+            // Move player in the respective direction
             if (keyH.upPressed) {
                 direction = "up";
                 y -= speed;
             } else if (keyH.downPressed) {
-                y += speed;
                 direction = "down";
+                y += speed;
             } else if (keyH.leftPressed) {
-                x -= speed;
                 direction = "left";
+                x -= speed;
             } else if (keyH.rightPressed) {
-                x += speed;
                 direction = "right";
+                x += speed;
             }
 
-          //handle sprite animation
+            // Handle sprite animation
             spriteCounter++;
             if (spriteCounter > 15) {
                 spriteNum = (spriteNum == 1) ? 2 : 1;
@@ -75,51 +69,25 @@ public class Player extends Entity {
         }
     }
 
-  //draw the player sprite with shadow and lighting effects
-    public void draw(Graphics2D g2) {
-        BufferedImage image = null;
-        switch (direction) {
-          case "up":
-            if (spriteNum == 1) {
-              image = up1;
-            } else {
-              image = up2;
-            }
-            break;
-          case "down":
-            if (spriteNum == 1) {
-              image = down1;
-            } else {
-              image = down2;
-            }
-            break;
-          case "left":
-            if (spriteNum == 1) {
-              image = left1;
-            } else {
-              image = left2;
-            }
-            break;
-          case "right":
-            if (spriteNum == 1) {
-              image = right1;
-            } else {
-              image = right2;
-            }
-            break;
-        }
-
-        // Draw shadow effect
-        g2.setColor(new Color(0, 0, 0, 100));
-        g2.fillOval(x + gp.tileSize / 4, y + gp.tileSize - 10, gp.tileSize / 2, 10);
-
-        // Draw player sprite with lighting effect
-        // Draw player sprite with lighting effect
-        g2.drawImage(image, x, y, 32, 32, null);
+    // Draw the player sprite with shadow and lighting effects
+public void draw(Graphics2D g2) {
+    BufferedImage image = (spriteNum == 1) ? sub1 : sub2;
+    
+    // Draw shadow effect
+    g2.setColor(new Color(0, 0, 0, 100));
+    g2.fillOval(x + gp.tileSize / 4, y + gp.tileSize * 2 - 10, gp.tileSize, 10);
+    
+    // Draw player sprite (2x size)
+    g2.drawImage(image, x, y, gp.tileSize * 2, gp.tileSize * 2, null);
+    
+    // Simulate simple lighting by adding a highlight
+    g2.setColor(new Color(255, 255, 255, 50));
+    g2.fillOval(x + gp.tileSize / 3, y + gp.tileSize / 3, gp.tileSize / 2, gp.tileSize / 2);
+}
 
 
-        // Simulate simple lighting by adding a highlight
-        g2.setColor(new Color(255, 255, 255, 50));
-        g2.fillOval(x + gp.tileSize / 6, y + gp.tileSize / 6, gp.tileSize / 3, gp.tileSize / 3);
+    // Get the bounds of the player (used for collision detection)
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, gp.tileSize, gp.tileSize); // Use tileSize from GamePanel
     }
 }
